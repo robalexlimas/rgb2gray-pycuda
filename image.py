@@ -27,7 +27,8 @@ def array2vector(image):
 
 
 def array2image(image_array):
-    return Image.fromarray(image_array)
+    image = Image.fromarray(image_array)
+    return image.convert('RGB')
 
 
 def save_image(image, filename):

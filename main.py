@@ -18,6 +18,7 @@ def main():
 
     output_image_array = rgb2gray(image_vector, height, width)
     output_image = array2image(output_image_array)
+    print(output_image, input_image)
     save_image(output_image, output_name)
 
 

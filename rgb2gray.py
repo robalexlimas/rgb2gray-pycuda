@@ -1,5 +1,6 @@
 import numpy as np
 import pycuda.autoinit
+import pycuda.driver as cuda
 
 from pycuda import compiler, gpuarray
 
@@ -24,11 +25,13 @@ kernel_code_template = """
 """
 
 def rgb2gray(image, height, width, channels=3):
-    a_cpu = np.array(image).astype(np.uint8)
-    b_cpu = np.zeros((height, width)).astype(np.uint8)
+    a_cpu = np.array(image).astype(np.float32)
+    b_cpu = np.zeros((height, width)).astype(np.float32)
 
-    a_gpu = gpuarray.to_gpu(a_cpu) 
-    b_gpu = gpuarray.to_gpu(b_cpu)
+    a_gpu = cuda.mem_alloc(a_cpu.nbytes)
+    b_gpu = cuda.mem_alloc(b_cpu.nbytes)
+
+    cuda.memcpy_htod(a_gpu, a_cpu)
 
     kernel_code = kernel_code_template % {
         'width': str(width),
@@ -45,4 +48,6 @@ def rgb2gray(image, height, width, channels=3):
         grid = (100,8,1)
     )
 
-    return b_gpu.get()
+    cuda.memcpy_dtoh(b_cpu, b_gpu)
+
+    return b_cpu
